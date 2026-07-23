@@ -25,47 +25,33 @@ It does **not** load candles, patterns, or the full bootstrap path.
 
 | Setting | Value |
 |---------|--------|
-| Frequency | Every **5 minutes** (GitHub minimum; `*/3` is **not** allowed) |
+| Frequency | Every **5 minutes** (GitHub minimum) |
 | Days | **Monday–Friday** |
-| Hours | **09:00–15:30 IST** |
+| Hours | **09:00–15:59 IST** |
 | Timezone | **`Asia/Kolkata`** |
+| Minutes | **:02, :07, :12, …** (`2/5`) |
 
 ```yaml
 on:
   schedule:
-    - cron: "2/5 9-14 * * 1-5"       # 09:02, 09:07, … 14:57 IST
-      timezone: Asia/Kolkata
-    - cron: "2-27/5 15 * * 1-5"      # 15:02, 15:07, … 15:27 IST
+    - cron: "2/5 9-15 * * 1-5"
       timezone: Asia/Kolkata
 ```
 
-Two entries so hour 15 stops before **15:30**.
-
-### Minute timing
-
-| Pattern | Minutes of each hour |
-|---------|----------------------|
-| `*/5` | 0, 5, 10, 15, … (on the hour) |
-| **`2/5` (used)** | **2, 7, 12, 17, …** (+2 min offset) |
-
-GitHub still aims for that minute, but may run **late** under load — not guaranteed to the second.
+**One** schedule. Examples: 9:02, 9:07, … 15:57 IST.
 
 ### Timezone (official)
 
-Per [GitHub workflow syntax → `on.schedule`](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onschedule):
+Per [GitHub docs](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onschedule): default UTC; optional `timezone:`; minimum interval **5 minutes**.
 
-- Default is **UTC** if you omit `timezone`
-- You may set an **IANA timezone** (e.g. `Asia/Kolkata`)
-- **Shortest interval is every 5 minutes**
-
-`scripts/ping.sh` still double-checks Asia/Kolkata as a safety net.
+GitHub may run schedules late under load.
 
 ## GitHub Actions
 
 Workflow: [`.github/workflows/keepalive.yml`](.github/workflows/keepalive.yml)
 
-- `schedule`: Mon–Fri **09:00–15:30 IST**, every **5** min, **`timezone: Asia/Kolkata`**
-- `workflow_dispatch`: manual run (set `force: true` to ping outside the window)
+- `schedule`: **one** cron — Mon–Fri, hours **9–15 IST**, every 5 min at **:02/:07/…**
+- `workflow_dispatch`: manual run (`force: true` outside the window)
 
 ### Optional repo variable
 
