@@ -27,17 +27,27 @@ It does **not** load candles, patterns, or the full bootstrap path.
 |---------|--------|
 | Frequency | Every **3 minutes** |
 | Days | **Monday–Friday** |
-| Hours | **09:00–16:00 IST** (`Asia/Kolkata`) — NSE-aligned window (9 AM through before 4 PM) |
-| Timezone logic | Cron runs Mon–Fri every 3 min in **UTC**; the job **skips** outside 09:00–16:00 IST |
+| Hours | **09:00–16:00 IST** (`Asia/Kolkata`) |
+| UTC equivalent | **03:30–10:30 UTC** (IST = UTC+5:30) |
 
-GitHub Actions schedules are UTC-only and can lag several minutes under load. That is expected for free-tier keepalives.
+GitHub Actions cron is **UTC-only**, so the workflow uses **three** schedule rules that map to that IST window:
+
+| Cron (UTC) | IST window |
+|------------|------------|
+| `30-59/3 3 * * 1-5` | 09:00–09:29 |
+| `*/3 4-9 * * 1-5` | 09:30–15:29 |
+| `0-30/3 10 * * 1-5` | 15:30–16:00 |
+
+`scripts/ping.sh` still checks **Asia/Kolkata** and skips if somehow run outside the window (safety net).
+
+GitHub may delay scheduled runs under load — expected for free-tier keepalives.
 
 ## GitHub Actions
 
 Workflow: [`.github/workflows/keepalive.yml`](.github/workflows/keepalive.yml)
 
-- `schedule`: `*/3 * * * 1-5` (Mon–Fri, every 3 minutes UTC)
-- `workflow_dispatch`: manual run anytime (still respects IST window unless you force)
+- `schedule`: three crons above (Mon–Fri, 09:00–16:00 IST)
+- `workflow_dispatch`: manual run (set `force: true` to ping outside the window)
 
 ### Optional repo variable
 
