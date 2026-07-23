@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ping TIP API /api/health if within Mon–Fri 08:00–16:00 Asia/Kolkata.
+# Ping TIP API /api/health if within Mon–Fri 09:00–15:30 Asia/Kolkata.
 set -euo pipefail
 
 HEALTH_URL="${HEALTH_URL:-https://tip2-api.onrender.com/api/health}"
@@ -8,9 +8,11 @@ TZ_NAME="Asia/Kolkata"
 ist_now="$(TZ="$TZ_NAME" date '+%Y-%m-%d %H:%M:%S %Z')"
 dow="$(TZ="$TZ_NAME" date '+%u')"   # 1=Mon … 7=Sun
 hour="$(TZ="$TZ_NAME" date '+%H')"
+minute="$(TZ="$TZ_NAME" date '+%M')"
 hour=$((10#$hour))
+minute=$((10#$minute))
 
-echo "Now: $ist_now (dow=$dow hour=$hour)"
+echo "Now: $ist_now (dow=$dow hour=$hour minute=$minute)"
 echo "Target: $HEALTH_URL"
 
 # Optional: FORCE=1 bypasses window (for workflow_dispatch debugging)
@@ -19,9 +21,17 @@ if [[ "${FORCE:-0}" != "1" ]]; then
     echo "Outside Mon–Fri IST — skip ping"
     exit 0
   fi
-  # Match cron */5 8-15 * * 1-5 with timezone Asia/Kolkata
-  if [[ "$hour" -lt 8 || "$hour" -gt 15 ]]; then
-    echo "Outside 08:00–16:00 IST — skip ping"
+  # 09:00 inclusive … 15:30 inclusive
+  if [[ "$hour" -lt 9 ]]; then
+    echo "Before 09:00 IST — skip ping"
+    exit 0
+  fi
+  if [[ "$hour" -gt 15 ]]; then
+    echo "After 15:30 IST — skip ping"
+    exit 0
+  fi
+  if [[ "$hour" -eq 15 && "$minute" -gt 30 ]]; then
+    echo "After 15:30 IST — skip ping"
     exit 0
   fi
 fi

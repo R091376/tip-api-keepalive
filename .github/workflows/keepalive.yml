@@ -1,24 +1,24 @@
 # Keep TIP-2 API warm during market hours (IST).
 #
-# Official docs (GitHub Actions workflow syntax → on.schedule):
-# - Default cron timezone is UTC
-# - Optional `timezone:` IANA string (e.g. Asia/Kolkata) — supported since Mar 2026
-# - Shortest allowed schedule interval is **every 5 minutes** (not 3)
+# Official docs: on.schedule defaults to UTC; optional timezone: IANA string.
+# Minimum interval: every 5 minutes (not 3).
 #
-# Note: GitHub may still delay scheduled runs under load.
+# Window: Mon–Fri 09:00–15:30 Asia/Kolkata (two crons — hour 15 only through :30).
 
 name: Keep TIP API warm
 
 on:
   schedule:
-    # Every 5 minutes, Mon–Fri, 08:00–15:59 Asia/Kolkata
-    # (~8 AM – 4 PM IST window; covers pre-open through post-close buffer)
-    - cron: "*/5 8-15 * * 1-5"
+    # 09:00–14:59 IST, every 5 minutes, Mon–Fri
+    - cron: "*/5 9-14 * * 1-5"
+      timezone: Asia/Kolkata
+    # 15:00–15:30 IST, every 5 minutes, Mon–Fri
+    - cron: "0-30/5 15 * * 1-5"
       timezone: Asia/Kolkata
   workflow_dispatch:
     inputs:
       force:
-        description: "Ping even outside 08:00–16:00 IST"
+        description: "Ping even outside 09:00–15:30 IST"
         required: false
         default: "false"
         type: choice
