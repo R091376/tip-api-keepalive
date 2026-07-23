@@ -1,0 +1,44 @@
+# Keep TIP-2 API warm during NSE-aligned hours (IST).
+#
+# Cron is UTC-only. We schedule every 3 minutes Mon–Fri, then the script
+# exits without calling the API outside 09:00–16:00 Asia/Kolkata.
+#
+# Note: GitHub may delay scheduled runs under load.
+
+name: Keep TIP API warm
+
+on:
+  schedule:
+    # Every 3 minutes, Monday–Friday (UTC calendar days)
+    - cron: "*/3 * * * 1-5"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Ping even outside 09:00–16:00 IST"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Ping /api/health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ping health (IST window)
+        env:
+          # Optional: set repo variable HEALTH_URL; script has default host
+          HEALTH_URL: ${{ vars.HEALTH_URL }}
+          FORCE: ${{ inputs.force == 'true' && '1' || '0' }}
+        run: |
+          chmod +x scripts/ping.sh
+          bash scripts/ping.sh
