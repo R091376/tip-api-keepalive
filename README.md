@@ -27,19 +27,14 @@ It does **not** load candles, patterns, or the full bootstrap path.
 |---------|--------|
 | Frequency | Every **3 minutes** |
 | Days | **Monday–Friday** |
-| Hours | **≈ 09:30–15:30 IST** (`Asia/Kolkata`) |
-| Single cron (UTC) | `*/3 4-9 * * 1-5` → **04:00–09:59 UTC** |
-
-### Why not exact 09:00 IST with one cron?
-
-GitHub Actions cron is **UTC-only**. IST is **UTC+5:30**, so 09:00 IST = **03:30 UTC**.  
-A single hour-range cron can only use whole UTC hours, so:
+| Hours | **≈ 08:30–15:30 IST** (`Asia/Kolkata`) |
+| Single cron (UTC) | `*/3 3-9 * * 1-5` → **03:00–09:59 UTC** |
 
 | Cron | IST coverage |
 |------|----------------|
-| `*/3 4-9 * * 1-5` (**used**) | **09:30–15:29** — one job, ~9:30 AM–3:30 PM |
-| `*/3 3-9 * * 1-5` | 08:30–15:29 — one job, starts 30 min early |
-| Exact 09:00–16:00 | Needs **2–3** crons (half-hour offset) |
+| `*/3 3-9 * * 1-5` (**used**) | **08:30–15:29** — ~8:30 AM–3:30 PM IST |
+| `*/3 4-9 * * 1-5` | 09:30–15:29 — starts later |
+| Exact 09:00–16:00 | Needs **2–3** crons (IST half-hour offset) |
 
 `scripts/ping.sh` still double-checks Asia/Kolkata as a safety net.
 
@@ -49,7 +44,7 @@ GitHub may delay scheduled runs under load — expected for free-tier keepalives
 
 Workflow: [`.github/workflows/keepalive.yml`](.github/workflows/keepalive.yml)
 
-- `schedule`: **one** cron — Mon–Fri every 3 min, 04–09 UTC (≈ 9:30–3:30 IST)
+- `schedule`: **one** cron — Mon–Fri every 3 min, **03–09 UTC** (≈ **8:30 AM–3:30 PM IST**)
 - `workflow_dispatch`: manual run (set `force: true` to ping outside the window)
 
 ### Optional repo variable

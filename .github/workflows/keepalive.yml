@@ -1,24 +1,22 @@
 # Keep TIP-2 API warm during market hours (IST).
 #
 # GitHub Actions cron is UTC-only. IST = UTC+5:30.
-# One schedule: every 3 minutes, Mon–Fri, 04:00–09:59 UTC
-#   → 09:30–15:29 IST (≈ 9:30 AM – 3:30 PM IST)
+# One schedule: every 3 minutes, Mon–Fri, 03:00–09:59 UTC
+#   → 08:30–15:29 IST (≈ 8:30 AM – 3:30 PM IST)
 #
-# Exact 09:00 IST start needs a second cron (half-hour offset); we keep
-# a single job for simplicity. scripts/ping.sh still gates on Asia/Kolkata.
-#
+# scripts/ping.sh still gates on Asia/Kolkata as a safety net.
 # Note: GitHub may delay scheduled runs under load.
 
 name: Keep TIP API warm
 
 on:
   schedule:
-    # Mon–Fri every 3 min, 04:00–09:59 UTC = 09:30–15:29 IST
-    - cron: "*/3 4-9 * * 1-5"
+    # Mon–Fri every 3 min, 03:00–09:59 UTC = 08:30–15:29 IST
+    - cron: "*/3 3-9 * * 1-5"
   workflow_dispatch:
     inputs:
       force:
-        description: "Ping even outside 09:30–15:30 IST"
+        description: "Ping even outside 08:30–15:30 IST"
         required: false
         default: "false"
         type: choice

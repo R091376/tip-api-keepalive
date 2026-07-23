@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ping TIP API /api/health if within Mon–Fri ~09:30–15:30 Asia/Kolkata.
+# Ping TIP API /api/health if within Mon–Fri ~08:30–15:30 Asia/Kolkata.
 set -euo pipefail
 
 HEALTH_URL="${HEALTH_URL:-https://tip2-api.onrender.com/api/health}"
@@ -21,21 +21,19 @@ if [[ "${FORCE:-0}" != "1" ]]; then
     echo "Outside Mon–Fri IST — skip ping"
     exit 0
   fi
-  # Match single cron */3 4-9 * * 1-5 UTC → ~09:30–15:29 IST
-  # Allow 09:30 inclusive through 15:30 exclusive (last hour 15:xx)
-  if [[ "$hour" -lt 9 ]]; then
-    echo "Before 09:30 IST window — skip ping"
+  # Match single cron */3 3-9 * * 1-5 UTC → ~08:30–15:29 IST
+  if [[ "$hour" -lt 8 ]]; then
+    echo "Before 08:30 IST window — skip ping"
     exit 0
   fi
-  if [[ "$hour" -eq 9 && "$minute" -lt 30 ]]; then
-    echo "Before 09:30 IST — skip ping"
+  if [[ "$hour" -eq 8 && "$minute" -lt 30 ]]; then
+    echo "Before 08:30 IST — skip ping"
     exit 0
   fi
   if [[ "$hour" -ge 16 ]]; then
     echo "After 15:30 IST window — skip ping"
     exit 0
   fi
-  # hour 15 is OK (15:00–15:29 cron); hour 16+ already skipped
   if [[ "$hour" -gt 15 ]]; then
     echo "After 15:30 IST window — skip ping"
     exit 0
