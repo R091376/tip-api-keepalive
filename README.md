@@ -27,18 +27,21 @@ It does **not** load candles, patterns, or the full bootstrap path.
 |---------|--------|
 | Frequency | Every **3 minutes** |
 | Days | **Monday–Friday** |
-| Hours | **09:00–16:00 IST** (`Asia/Kolkata`) |
-| UTC equivalent | **03:30–10:30 UTC** (IST = UTC+5:30) |
+| Hours | **≈ 09:30–15:30 IST** (`Asia/Kolkata`) |
+| Single cron (UTC) | `*/3 4-9 * * 1-5` → **04:00–09:59 UTC** |
 
-GitHub Actions cron is **UTC-only**, so the workflow uses **three** schedule rules that map to that IST window:
+### Why not exact 09:00 IST with one cron?
 
-| Cron (UTC) | IST window |
-|------------|------------|
-| `30-59/3 3 * * 1-5` | 09:00–09:29 |
-| `*/3 4-9 * * 1-5` | 09:30–15:29 |
-| `0-30/3 10 * * 1-5` | 15:30–16:00 |
+GitHub Actions cron is **UTC-only**. IST is **UTC+5:30**, so 09:00 IST = **03:30 UTC**.  
+A single hour-range cron can only use whole UTC hours, so:
 
-`scripts/ping.sh` still checks **Asia/Kolkata** and skips if somehow run outside the window (safety net).
+| Cron | IST coverage |
+|------|----------------|
+| `*/3 4-9 * * 1-5` (**used**) | **09:30–15:29** — one job, ~9:30 AM–3:30 PM |
+| `*/3 3-9 * * 1-5` | 08:30–15:29 — one job, starts 30 min early |
+| Exact 09:00–16:00 | Needs **2–3** crons (half-hour offset) |
+
+`scripts/ping.sh` still double-checks Asia/Kolkata as a safety net.
 
 GitHub may delay scheduled runs under load — expected for free-tier keepalives.
 
@@ -46,7 +49,7 @@ GitHub may delay scheduled runs under load — expected for free-tier keepalives
 
 Workflow: [`.github/workflows/keepalive.yml`](.github/workflows/keepalive.yml)
 
-- `schedule`: three crons above (Mon–Fri, 09:00–16:00 IST)
+- `schedule`: **one** cron — Mon–Fri every 3 min, 04–09 UTC (≈ 9:30–3:30 IST)
 - `workflow_dispatch`: manual run (set `force: true` to ping outside the window)
 
 ### Optional repo variable
