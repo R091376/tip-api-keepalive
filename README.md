@@ -33,13 +33,22 @@ It does **not** load candles, patterns, or the full bootstrap path.
 ```yaml
 on:
   schedule:
-    - cron: "*/5 9-14 * * 1-5"      # 09:00–14:59 IST
+    - cron: "2/5 9-14 * * 1-5"       # 09:02, 09:07, … 14:57 IST
       timezone: Asia/Kolkata
-    - cron: "0-30/5 15 * * 1-5"     # 15:00–15:30 IST
+    - cron: "2-27/5 15 * * 1-5"      # 15:02, 15:07, … 15:27 IST
       timezone: Asia/Kolkata
 ```
 
-Two entries so hour 15 stops at **:30** (not the full hour).
+Two entries so hour 15 stops before **15:30**.
+
+### Minute timing
+
+| Pattern | Minutes of each hour |
+|---------|----------------------|
+| `*/5` | 0, 5, 10, 15, … (on the hour) |
+| **`2/5` (used)** | **2, 7, 12, 17, …** (+2 min offset) |
+
+GitHub still aims for that minute, but may run **late** under load — not guaranteed to the second.
 
 ### Timezone (official)
 

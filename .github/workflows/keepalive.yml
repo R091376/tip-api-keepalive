@@ -1,19 +1,20 @@
 # Keep TIP-2 API warm during market hours (IST).
 #
 # Official docs: on.schedule defaults to UTC; optional timezone: IANA string.
-# Minimum interval: every 5 minutes (not 3).
+# Minimum interval: every 5 minutes.
 #
-# Window: Mon–Fri 09:00–15:30 Asia/Kolkata (two crons — hour 15 only through :30).
+# Window: Mon–Fri 09:00–15:30 Asia/Kolkata, every 5 min starting at :02
+#   → 09:02, 09:07, 09:12, … (not on the hour marks)
 
 name: Keep TIP API warm
 
 on:
   schedule:
-    # 09:00–14:59 IST, every 5 minutes, Mon–Fri
-    - cron: "*/5 9-14 * * 1-5"
+    # 09:02–14:57 IST, every 5 minutes, Mon–Fri
+    - cron: "2/5 9-14 * * 1-5"
       timezone: Asia/Kolkata
-    # 15:00–15:30 IST, every 5 minutes, Mon–Fri
-    - cron: "0-30/5 15 * * 1-5"
+    # 15:02–15:27 IST (stop before/at 15:30), Mon–Fri
+    - cron: "2-27/5 15 * * 1-5"
       timezone: Asia/Kolkata
   workflow_dispatch:
     inputs:
