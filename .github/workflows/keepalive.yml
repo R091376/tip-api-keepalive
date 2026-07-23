@@ -1,25 +1,20 @@
 # Keep TIP-2 API warm during market hours (IST).
 #
-# Official docs: on.schedule defaults to UTC; optional timezone: IANA string.
-# Minimum interval: every 5 minutes.
-#
-# Window: Mon–Fri 09:00–15:30 Asia/Kolkata, every 5 min starting at :02
-#   → 09:02, 09:07, 09:12, … (not on the hour marks)
+# One schedule only. Timezone is Asia/Kolkata (not UTC).
+# GitHub minimum interval: 5 minutes.
+# Minutes 2,7,12,… so pings are not on the exact hour marks.
 
 name: Keep TIP API warm
 
 on:
   schedule:
-    # 09:02–14:57 IST, every 5 minutes, Mon–Fri
-    - cron: "2/5 9-14 * * 1-5"
-      timezone: Asia/Kolkata
-    # 15:02–15:27 IST (stop before/at 15:30), Mon–Fri
-    - cron: "2-27/5 15 * * 1-5"
+    # Mon–Fri, every 5 min, 09:02–15:57 IST
+    - cron: "2/5 9-15 * * 1-5"
       timezone: Asia/Kolkata
   workflow_dispatch:
     inputs:
       force:
-        description: "Ping even outside 09:00–15:30 IST"
+        description: "Ping even outside 09:00–16:00 IST"
         required: false
         default: "false"
         type: choice
