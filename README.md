@@ -27,30 +27,25 @@ It does **not** load candles, patterns, or the full bootstrap path.
 |---------|--------|
 | Frequency | Every **5 minutes** (GitHub minimum) |
 | Days | **Monday–Friday** |
-| Hours | **09:00–15:59 IST** |
-| Timezone | **`Asia/Kolkata`** |
-| Minutes | **:02, :07, :12, …** (`2/5`) |
+| Cron (UTC) | `*/5 3-10 * * 1-5` (~08:30–16:25 IST) |
+| Effective window | **09:00–15:59 IST** (enforced in `scripts/ping.sh`) |
+
+Workflow uses a **plain UTC cron** (no `timezone:` field). The shell script is the source of truth for the IST market window.
 
 ```yaml
 on:
   schedule:
-    - cron: "2/5 9-15 * * 1-5"
-      timezone: Asia/Kolkata
+    - cron: "*/5 3-10 * * 1-5"
+  workflow_dispatch:
 ```
 
-**One** schedule. Examples: 9:02, 9:07, … 15:57 IST.
-
-### Timezone (official)
-
-Per [GitHub docs](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onschedule): default UTC; optional `timezone:`; minimum interval **5 minutes**.
-
-GitHub may run schedules late under load.
+GitHub may run schedules a few minutes late under load. Schedules only run from the **default branch** (`master`).
 
 ## GitHub Actions
 
-Workflow: [`.github/workflows/keepalive.yml`](.github/workflows/keepalive.yml)
+Workflow: [`.github/workflows/tip-keepalive.yml`](.github/workflows/tip-keepalive.yml)
 
-- `schedule`: **one** cron — Mon–Fri, hours **9–15 IST**, every 5 min at **:02/:07/…**
+- `schedule`: Mon–Fri, every 5 min, UTC hours 3–10
 - `workflow_dispatch`: manual run (`force: true` outside the window)
 
 ### Optional repo variable
@@ -78,5 +73,5 @@ bash scripts/ping.sh
 ## Limits
 
 - Does not replace a paid “always on” plan.
-- Neon and Render can still sleep; this only **reduces** idle downtime during the window.
-- Outside Mon–Fri 09:00–16:00 IST the workflow exits 0 without calling the API (saves Actions minutes).
+- Free GitHub Actions schedules are best-effort (can delay).
+- Repo inactivity can pause schedules; a recent commit reactivates them.

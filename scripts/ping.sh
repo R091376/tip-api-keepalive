@@ -18,11 +18,12 @@ if [[ "${FORCE:-0}" != "1" ]]; then
     echo "Outside Mon–Fri IST — skip ping"
     exit 0
   fi
-  # Match cron: 2/5 9-15 * * 1-5 timezone Asia/Kolkata
+  # Effective market window (cron is wider UTC; script is source of truth)
   if [[ "$hour" -lt 9 || "$hour" -gt 15 ]]; then
     echo "Outside 09:00–16:00 IST — skip ping"
     exit 0
   fi
+
 fi
 
 echo "Pinging…"

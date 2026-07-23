@@ -1,20 +1,23 @@
-# Keep TIP-2 API warm during market hours (IST).
+# Keep TIP-2 API warm during market hours.
 #
-# One schedule only. Timezone is Asia/Kolkata (not UTC).
-# GitHub minimum interval: 5 minutes.
-# Minutes 2,7,12,… so pings are not on the exact hour marks.
+# Plain UTC cron only (no timezone: field). GitHub schedules have been
+# unreliable with non-standard fields; ping.sh enforces the IST window.
+#
+# IST = UTC+5:30
+#   09:00 IST ≈ 03:30 UTC
+#   16:00 IST ≈ 10:30 UTC
+# Cron hours 3–10 UTC cover ~08:30–16:30 IST; script skips outside 09–15 IST.
 
-name: Keep TIP API warm
+name: TIP API keep-warm
 
 on:
   schedule:
-    # Mon–Fri, every 5 min, 09:02–15:57 IST
-    - cron: "2/5 9-15 * * 1-5"
-      timezone: Asia/Kolkata
+    # Every 5 min, Mon–Fri, 03:00–10:55 UTC (~08:30–16:25 IST)
+    - cron: "*/5 3-10 * * 1-5"
   workflow_dispatch:
     inputs:
       force:
-        description: "Ping even outside 09:00–16:00 IST"
+        description: "Ping even outside Mon–Fri 09:00–16:00 IST"
         required: false
         default: "false"
         type: choice
@@ -34,7 +37,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Ping health (IST window)
+      - name: Ping health
         env:
           HEALTH_URL: ${{ vars.HEALTH_URL }}
           FORCE: ${{ inputs.force == 'true' && '1' || '0' }}
