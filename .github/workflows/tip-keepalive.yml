@@ -1,23 +1,29 @@
 # Keep TIP-2 API warm during market hours.
 #
 # Plain UTC cron only (no timezone: field). GitHub schedules have been
-# unreliable with non-standard fields; ping.sh enforces the IST window.
+# unreliable with non-standard fields; ping.sh still guards the IST window.
 #
 # IST = UTC+5:30
-#   09:00 IST ≈ 03:30 UTC
-#   16:00 IST ≈ 10:30 UTC
-# Cron hours 3–10 UTC cover ~08:30–16:30 IST; script skips outside 09–15 IST.
+#   09:02 IST = 03:32 UTC
+#   15:27 IST = 09:57 UTC (last slot at or before 15:30 IST)
+#
+# Minutes are the 5-minute grid with a 2-minute offset:
+#   2,7,12,17,22,27,32,37,42,47,52,57
+# That same set is closed under the +30m IST offset, so UTC minutes
+# stay on that grid.
 
 name: TIP API keep-warm
 
 on:
   schedule:
-    # Every 5 min, Mon–Fri, 03:00–10:55 UTC (~08:30–16:25 IST)
-    - cron: "*/5 3-10 * * 1-5"
+    # 09:02–09:27 IST (03:32–03:57 UTC), Mon–Fri
+    - cron: "32,37,42,47,52,57 3 * * 1-5"
+    # 09:32–15:27 IST (04:02–09:57 UTC), Mon–Fri
+    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 4-9 * * 1-5"
   workflow_dispatch:
     inputs:
       force:
-        description: "Ping even outside Mon–Fri 09:00–16:00 IST"
+        description: "Ping even outside Mon–Fri 09:00–15:30 IST"
         required: false
         default: "false"
         type: choice

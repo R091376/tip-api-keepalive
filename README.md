@@ -25,17 +25,20 @@ It does **not** load candles, patterns, or the full bootstrap path.
 
 | Setting | Value |
 |---------|--------|
-| Frequency | Every **5 minutes** (GitHub minimum) |
+| Frequency | Every **5 minutes**, **+2 minute offset** (`:02`, `:07`, `:12`, …) |
 | Days | **Monday–Friday** |
-| Cron (UTC) | `*/5 3-10 * * 1-5` (~08:30–16:25 IST) |
-| Effective window | **09:00–15:59 IST** (enforced in `scripts/ping.sh`) |
+| Window | **09:00–15:30 IST** (first ping **09:02**, last ping **15:27**) |
+| Cron (UTC) | see below |
 
-Workflow uses a **plain UTC cron** (no `timezone:` field). The shell script is the source of truth for the IST market window.
+Workflow uses **plain UTC cron** (no `timezone:` field). `scripts/ping.sh` still skips outside 09:00–15:30 IST.
 
 ```yaml
 on:
   schedule:
-    - cron: "*/5 3-10 * * 1-5"
+    # 09:02–09:27 IST
+    - cron: "32,37,42,47,52,57 3 * * 1-5"
+    # 09:32–15:27 IST
+    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 4-9 * * 1-5"
   workflow_dispatch:
 ```
 
@@ -45,7 +48,7 @@ GitHub may run schedules a few minutes late under load. Schedules only run from 
 
 Workflow: [`.github/workflows/tip-keepalive.yml`](.github/workflows/tip-keepalive.yml)
 
-- `schedule`: Mon–Fri, every 5 min, UTC hours 3–10
+- `schedule`: Mon–Fri, every 5 min with a 2-minute offset, 09:02–15:27 IST
 - `workflow_dispatch`: manual run (`force: true` outside the window)
 
 ### Optional repo variable
