@@ -25,20 +25,18 @@ It does **not** load candles, patterns, or the full bootstrap path.
 
 | Setting | Value |
 |---------|--------|
-| Frequency | Every **5 minutes**, **+2 minute offset** (`:02`, `:07`, `:12`, …) |
+| Frequency | Every **30 minutes** (`:00` and `:30` UTC) |
 | Days | **Monday–Friday** |
-| Window | **09:00–15:30 IST** (first ping **09:02**, last ping **15:27**) |
+| Window | **08:30–10:00 IST** (first ping **08:30**, last ping **10:00**) |
 | Cron (UTC) | see below |
 
-Workflow uses **plain UTC cron** (no `timezone:` field). `scripts/ping.sh` still skips outside 09:00–15:30 IST.
+Workflow uses **plain UTC cron** (no `timezone:` field). `scripts/ping.sh` still skips outside 08:30–10:30 IST (30 min slack after the last slot for GitHub delay).
 
 ```yaml
 on:
   schedule:
-    # 09:02–09:27 IST
-    - cron: "32,37,42,47,52,57 3 * * 1-5"
-    # 09:32–15:27 IST
-    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 4-9 * * 1-5"
+    # 08:30, 09:00, 09:30, 10:00 IST
+    - cron: "0,30 3-4 * * 1-5"
   workflow_dispatch:
 ```
 
@@ -48,7 +46,7 @@ GitHub may run schedules a few minutes late under load. Schedules only run from 
 
 Workflow: [`.github/workflows/tip-keepalive.yml`](.github/workflows/tip-keepalive.yml)
 
-- `schedule`: Mon–Fri, every 5 min with a 2-minute offset, 09:02–15:27 IST
+- `schedule`: Mon–Fri, every 30 min, 08:30–10:00 IST
 - `workflow_dispatch`: manual run (`force: true` outside the window)
 
 ### Optional repo variable

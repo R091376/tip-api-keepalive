@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ping TIP API /api/health if within Mon–Fri 09:00–15:30 Asia/Kolkata.
+# Ping TIP API /api/health if within Mon–Fri 08:30–10:30 Asia/Kolkata.
 set -euo pipefail
 
 HEALTH_URL="${HEALTH_URL:-https://tip2-api.onrender.com/api/health}"
@@ -20,12 +20,13 @@ if [[ "${FORCE:-0}" != "1" ]]; then
     echo "Outside Mon–Fri IST — skip ping"
     exit 0
   fi
-  # 09:00–15:30 IST (cron is UTC; script is the IST source of truth)
+  # 08:30–10:30 IST (cron is UTC; script is the IST source of truth).
+  # End is 30 min past the last 10:00 IST slot so a delayed GitHub run still pings.
   minutes_now=$((hour * 60 + minute))
-  window_start=$((9 * 60))
-  window_end=$((15 * 60 + 30))
+  window_start=$((8 * 60 + 30))
+  window_end=$((10 * 60 + 30))
   if [[ "$minutes_now" -lt "$window_start" || "$minutes_now" -ge "$window_end" ]]; then
-    echo "Outside 09:00–15:30 IST — skip ping"
+    echo "Outside 08:30–10:30 IST — skip ping"
     exit 0
   fi
 fi
