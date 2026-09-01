@@ -1,6 +1,6 @@
 # Keep TIP-2 API warm during morning hours.
 #
-# Plain UTC cron only (no timezone: field). ping.sh still guards the IST window.
+# Plain UTC cron only (no timezone: field). ping.sh always curls when invoked.
 #
 # IST = UTC+5:30
 #   08:30 IST = 03:00 UTC
@@ -12,15 +12,6 @@ on:
     # 08:30 IST (03:00 UTC), Mon–Fri
     - cron: "0 3 * * 1-5"
   workflow_dispatch:
-    inputs:
-      force:
-        description: "Ping even outside Mon–Fri 08:30 IST"
-        required: false
-        default: "false"
-        type: choice
-        options:
-          - "false"
-          - "true"
 
 permissions:
   contents: read
@@ -37,7 +28,6 @@ jobs:
       - name: Ping health
         env:
           HEALTH_URL: ${{ vars.HEALTH_URL }}
-          FORCE: ${{ inputs.force == 'true' && '1' || '0' }}
         run: |
           chmod +x scripts/ping.sh
           bash scripts/ping.sh

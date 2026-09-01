@@ -30,7 +30,7 @@ It does **not** load candles, patterns, or the full bootstrap path.
 | Window | **08:30 IST** |
 | Cron (UTC) | see below |
 
-Workflow uses **plain UTC cron** (no `timezone:` field). `scripts/ping.sh` still skips outside 08:30–09:00 IST (30 min slack after 08:30 for GitHub delay).
+Workflow uses **plain UTC cron** (no `timezone:` field). `scripts/ping.sh` always curls when the workflow runs (no IST window skip).
 
 ```yaml
 on:
@@ -47,7 +47,7 @@ GitHub may run schedules a few minutes late under load. Schedules only run from 
 Workflow: [`.github/workflows/tip-keepalive.yml`](.github/workflows/tip-keepalive.yml)
 
 - `schedule`: Mon–Fri, **08:30 IST**
-- `workflow_dispatch`: manual run (`force: true` outside the window)
+- `workflow_dispatch`: manual run (always pings)
 
 ### Optional repo variable
 
