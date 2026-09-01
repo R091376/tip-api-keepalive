@@ -1,23 +1,20 @@
 # Keep TIP-2 API warm during morning hours.
 #
-# Plain UTC cron only (no timezone: field). Dense 5-minute schedules
-# were skipped or delayed hours by GitHub; 30-minute slots are more
-# likely to fire. ping.sh still guards the IST window.
+# Plain UTC cron only (no timezone: field). ping.sh still guards the IST window.
 #
 # IST = UTC+5:30
 #   08:30 IST = 03:00 UTC
-#   10:00 IST = 04:30 UTC
 
 name: TIP API keep-warm
 
 on:
   schedule:
-    # 08:30, 09:00, 09:30, 10:00 IST (03:00–04:30 UTC), Mon–Fri
-    - cron: "0,30 3-4 * * 1-5"
+    # 08:30 IST (03:00 UTC), Mon–Fri
+    - cron: "0 3 * * 1-5"
   workflow_dispatch:
     inputs:
       force:
-        description: "Ping even outside Mon–Fri 08:30–10:30 IST"
+        description: "Ping even outside Mon–Fri 08:30 IST"
         required: false
         default: "false"
         type: choice
